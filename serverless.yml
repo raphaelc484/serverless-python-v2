@@ -1,0 +1,55 @@
+service: serverless-python-v2
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-1
+  memorySize: 1024
+  timeout: 300
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - s3:*
+      Resource: ["*"]
+package:
+  individually: true
+  exclude:
+    - "**/*"
+  include:
+    - "*.py"
+    - "pandas"
+    - "openpyxl"
+
+functions:
+  bacias:
+    handler: handler.bacias
+    events:
+      - s3:
+          bucket: bucket-docs-nodejs
+          event: s3:ObjectCreated:*
+          existing: true
+          rules:
+            - prefix: Eta40/ETA40_m_
+            - suffix: .dat
+      - s3:
+          bucket: bucket-docs-nodejs
+          event: s3:ObjectCreated:*
+          existing: true
+          rules:
+            - prefix: Gefs50/GEFS_m_
+            - suffix: .dat 
+      - s3:
+          bucket: bucket-docs-nodejs
+          event: s3:ObjectCreated:*
+          existing: true
+          rules:
+            - prefix: ECMWF/ECMWF_m_
+            - suffix: .dat     
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    zip: true
